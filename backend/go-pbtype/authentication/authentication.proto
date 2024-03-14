@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package authentication;
+
+option go_package = "github.com/nekizz/final-project/backend/go-pbtype/authentication";
+
+import "github.com/nekizz/final-project/backend/go-pbtype/notification/notification.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+
+// Enable custom Marshal method.
+option (gogoproto.marshaler_all) = true;
+// Enable custom Unmarshal method.
+option (gogoproto.unmarshaler_all) = true;
+// Enable custom Size method (Required by Marshal and Unmarshal).
+option (gogoproto.sizer_all) = true;
+// Enable registration with golang/protobuf for the grpc-gateway.
+option (gogoproto.goproto_registration) = true;
+// Enable generation of XXX_MessageName methods for grpc-go/status.
+option (gogoproto.messagename_all) = true;
+
+message Authentication {
+  int32 id = 1;
+  string username = 2;
+  string password = 3;
+
+  string created_at = 20;
+  string updated_at = 21;
+}
+
+message AuthenticationResponse {
+  string jwt_token = 1;
+
+  string created_at = 20;
+  string updated_at = 21;
+}
+
+message CheckingOtpExpirationRequest{
+  string username = 1;
+  string otp = 2;
+}
+
+service AuthenticationService {
+  rpc Login(Authentication) returns (AuthenticationResponse) {
+    option (google.api.http) = {
+      post: "/authentication/login"
+      body: "*"
+    };
+  };
+  rpc SignUp(Authentication) returns (Authentication) {
+    option (google.api.http) = {
+      post: "/authentication/sign_up"
+      body: "*"
+    };
+  };
+  rpc ChangePassword(Authentication) returns (notification.Notification) {
+    option (google.api.http) = {
+      put: "/authentication/change_password"
+      body: "*"
+    };
+  };
+  rpc CheckExsitUsername(Authentication) returns (notification.Notification) {
+    option (google.api.http) = {
+      post: "/authentication/check_exist_username"
+    };
+  };
+  rpc CheckSessionExpired(google.protobuf.Empty) returns (notification.Notification) {
+    option (google.api.http) = {
+      post: "/authentication/check_session_expired"
+    };
+  };
+
+  //Confimation and check Expiration email
+  rpc VerificationEmail(Authentication) returns (notification.Notification) {
+    option (google.api.http) = {
+      post: "/authentication/verification_email"
+    };
+  };
+  rpc CheckingExpirationTime(CheckingOtpExpirationRequest) returns (notification.Notification) {
+    option (google.api.http) = {
+      post: "/authentication/check_expiration_time"
+    };
+  };
+}

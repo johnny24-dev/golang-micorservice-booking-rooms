@@ -1,0 +1,173 @@
+syntax = "proto3";
+
+package booking;
+
+option go_package = "github.com/nekizz/final-project/backend/go-pbtype/booking";
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "github.com/nekizz/final-project/backend/go-pbtype/payment/payment.proto";
+import "github.com/nekizz/final-project/backend/go-pbtype/bookedroom/bookedroom.proto";
+import "github.com/nekizz/final-project/backend/go-pbtype/hotel/hotel.proto";
+import "github.com/nekizz/final-project/backend/go-pbtype/notification/notification.proto";
+
+// Enable custom Marshal method.
+option (gogoproto.marshaler_all) = true;
+// Enable custom Unmarshal method.
+option (gogoproto.unmarshaler_all) = true;
+// Enable custom Size method (Required by Marshal and Unmarshal).
+option (gogoproto.sizer_all) = true;
+// Enable registration with golang/protobuf for the grpc-gateway.
+option (gogoproto.goproto_registration) = true;
+// Enable generation of XXX_MessageName methods for grpc-go/status.
+option (gogoproto.messagename_all) = true;
+
+message Booking {
+  int32 id = 1;
+  string note = 4;
+  float total_price = 5;
+  string status = 6;
+  int32 customer_id = 8;
+  hotel.Hotel hotel = 7;
+  payment.PaymentV2 payment = 9;
+  string start_date = 10;
+  string end_date = 11;
+
+  repeated bookedroom.BookedRoom bookedroom = 12;
+
+  string created_at = 20;
+  string updated_at = 21;
+}
+
+message BookingV2 {
+  int32 id = 1;
+  string note = 4;
+  int32 customer_id = 8;
+  float total = 9;
+  string start_date = 10;
+  string end_date = 11;
+  repeated bookedroom.BookedRoom bookedroom = 12;
+
+  string created_at = 20;
+  string updated_at = 21;
+}
+
+message OneBookingRequest {
+  uint32 id = 1;
+}
+
+message ListCustomerBookingRequest {
+  uint32 customer_id = 2;
+  uint32 page = 3;
+  uint32 limit = 4;
+  string created_at_min = 5;
+  string created_at_max = 6;
+}
+
+message ListCustomerBookingResponse {
+  repeated Booking items = 1;
+  uint32 max_page = 2;
+  uint32 total_count = 3;
+  uint32 page = 4;
+  uint32 limit = 5;
+}
+
+message ListHostBookingRequest {
+  uint32 host_id = 2;
+  uint32 page = 3;
+  uint32 limit = 4;
+  string created_at_min = 5;
+  string created_at_max = 6;
+}
+
+message ListHostBookingResponse {
+  repeated Booking items = 1;
+  uint32 max_page = 2;
+  uint32 total_count = 3;
+  uint32 page = 4;
+  uint32 limit = 5;
+}
+
+//message CreateBookingCmd {
+//  uint32 booking_id = 1;
+//  Booking booking = 2;
+//  string timestamp = 3;
+//}
+//
+//message CreateBookingResponse {
+//  uint32 booking_id = 1;
+//  Booking booking = 2;
+//  bool success = 3;
+//  string error = 4;
+//  string timestamp = 5;
+//}
+//message RollbackCmd {
+//  uint64 customer_id = 1;
+//  uint64 booking_id = 2;
+//  string timestamp = 3;
+//}
+//message RollbackResponse {
+//  uint64 customer_id = 1;
+//  uint64 booking_id = 2;
+//  bool success = 3;
+//  string error = 4;
+//  string timestamp = 5;
+//}
+//
+//// purchase result event
+//message BookingResult {
+//  uint64 customer_id = 1;
+//  uint64 booking_id = 2;
+//  BookingStep step = 3;
+//  BookingStatus status = 4;
+//  string timestamp = 5;
+//}
+//
+//enum BookingStep {
+//  STEP_UPDATE_ROOM = 0;
+//  STEP_CREATE_BOOKED_ROOM = 1;
+//  STEP_CREATE_PAYMENT = 2;
+//  STEP_CREATE_USED_SERVICE = 3;
+//}
+//enum BookingStatus {
+//  STATUS_EXUCUTE = 0;
+//  STATUS_SUCCESS = 1;
+//  STATUS_FAILED = 2;
+//  STATUS_ROLLBACKED = 3;
+//  STATUS_ROLLBACK_FAIL = 4;
+//}
+
+service BookingService {
+  rpc ConfirmBooking(Booking) returns (Booking) {
+    option (google.api.http) = {
+      post: "/confirm_booking"
+      body: "*"
+    };
+  };
+  rpc CreateBooking(BookingV2) returns (BookingV2) {
+    option (google.api.http) = {
+      post: "/create_booking"
+      body: "*"
+    };
+  };
+  rpc ListBookingOfCustomer(ListCustomerBookingRequest) returns (ListCustomerBookingResponse) {
+    option (google.api.http) = {
+      get: "/customer_bookings"
+    };
+  };
+  rpc ListBookingOfHost(ListHostBookingRequest) returns (ListHostBookingResponse) {
+    option (google.api.http) = {
+      get: "/host_bookings"
+    };
+  };
+  rpc Cancel(OneBookingRequest) returns (notification.Notification) {
+    option (google.api.http) = {
+      post: "/cancel_booking/{id}"
+    };
+  };
+  rpc ChangeCompletedBooking(OneBookingRequest) returns (notification.Notification) {
+    option (google.api.http) = {
+      post: "/change_completed_booking/{id}"
+    };
+  };
+}

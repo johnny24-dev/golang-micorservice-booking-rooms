@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package classify;
+
+option go_package = "github.com/nekizz/final-project/backend/go-pbtype/classify";
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+// Enable custom Marshal method.
+option (gogoproto.marshaler_all) = true;
+// Enable custom Unmarshal method.
+option (gogoproto.unmarshaler_all) = true;
+// Enable custom Size method (Required by Marshal and Unmarshal).
+option (gogoproto.sizer_all) = true;
+// Enable registration with golang/protobuf for the grpc-gateway.
+option (gogoproto.goproto_registration) = true;
+// Enable generation of XXX_MessageName methods for grpc-go/status.
+option (gogoproto.messagename_all) = true;
+
+message Classify {
+  string id = 1 ;
+  string emotion = 2;
+  string service = 3;
+  string amenity_and_leisure = 4;
+  string room = 5;
+  string location = 6;
+  string cuisine = 7;
+  string cost = 8;
+}
+
+

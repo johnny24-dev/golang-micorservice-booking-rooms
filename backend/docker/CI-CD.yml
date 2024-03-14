@@ -1,0 +1,76 @@
+#name: Docker CI/CD Pipeline
+#
+## Xác định sự kiện trigger cho pipeline, trong trường hợp này là push lên nhánh develop
+#on:
+#  push:
+#    branches:
+#      - main
+#
+## Định nghĩa các jobs cần thực hiện
+#jobs:
+#  # Job 1: build và test
+#  # Job thực thi trên máy ảo ubuntu
+#  build_and_test:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout code
+#        # Sử dụng action "checkout" để sao copy code từ repository vào máy ảo Ubuntu
+#        uses: actions/checkout@v2
+#
+#      - name: Login to Docker Hub
+#        # Sử dụng action "docker/login-action" để đăng nhập vào Docker Hub
+#        uses: docker/login-action@v2
+#        with:
+#          username: ${{ secrets.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+#
+#        # Build và test image được build ra bằng Docker
+#      - run: sudo apt install libc6
+#      - name: Build and test user
+#        run: |
+#          cd ./backend/user/
+#          make dev
+#
+#      - name:
+#        run: |
+#          cd ./backend/authentication/
+#          make dev
+#
+#      - name:
+#        run: |
+#          cd ./backend/booking/
+#          make dev
+#
+#      - name:
+#        run: |
+#          cd ./backend/hotel/
+#          make dev
+#
+#      - name:
+#        run: |
+#          cd ./backend/room/
+#          make dev
+#
+#
+#  # Job 2: Deploy
+#  deploy:
+#    needs: build_and_test
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Deploy to server
+#        # Sử dụng action "appleboy/ssh-action" để triển khai image lên server thông qua SSH
+#        uses: appleboy/ssh-action@v0.1.3
+#        with:
+#          host: ${{ secrets.SERVER_HOST }}
+#          username: ${{ secrets.SERVER_USER }}
+#          password: ${{ secrets.SERVER_PASSWORD }}
+#          port: ${{ secrets.SERVER_PORT  }}
+#          script: |
+#            cd ../n3kizz/docker-project
+#            ./down
+#            ./remove
+#            ./up
+#
+#

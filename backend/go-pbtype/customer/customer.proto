@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package customer;
+
+option go_package = "github.com/nekizz/final-project/backend/go-pbtype/customer";
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "github.com/nekizz/final-project/backend/go-pbtype/user/user.proto";
+
+
+// Enable custom Marshal method.
+option (gogoproto.marshaler_all) = true;
+// Enable custom Unmarshal method.
+option (gogoproto.unmarshaler_all) = true;
+// Enable custom Size method (Required by Marshal and Unmarshal).
+option (gogoproto.sizer_all) = true;
+// Enable registration with golang/protobuf for the grpc-gateway.
+option (gogoproto.goproto_registration) = true;
+// Enable generation of XXX_MessageName methods for grpc-go/status.
+option (gogoproto.messagename_all) = true;
+
+message Customer {
+  int32 id = 1;
+  string role = 2;
+  string description = 3;
+  user.User user = 5;
+
+  string created_at = 20;
+  string updated_at = 21;
+}
+
+message OneCustomerRequest {
+  string id = 1;
+}
+
+message CheckLoginCustomerRequest {
+  string username = 2;
+  string password = 3;
+}
+
+message CustomerAccountRequest {
+  int32 account_id = 1;
+}
+
+message ListCustomerRequest {
+  uint32 page = 3;
+  uint32 limit = 4;
+  string created_at_min = 5;
+  string created_at_max = 6;
+  string search_field = 7;
+  string search_value = 8;
+}
+
+message ListCustomerResponse {
+  repeated Customer items = 1;
+  uint32 max_page = 2;
+  uint32 total_count = 3;
+  uint32 page = 4;
+  uint32 limit = 5;
+  string search_field = 6;
+  string search_value = 7;
+}
+
+service CustomerService {
+  rpc Create(Customer) returns (Customer) {
+    option (google.api.http) = {
+      post: "/customer"
+      body: "*"
+    };
+  };
+  rpc Update(Customer) returns (Customer) {
+    option (google.api.http) = {
+      put: "/customer/{id}"
+      body: "*"
+    };
+  };
+  rpc Get(OneCustomerRequest) returns (Customer) {
+    option (google.api.http) = {
+      get: "/customer/{id}"
+    };
+  };
+  rpc Delete(OneCustomerRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/customer/{id}"
+    };
+  };
+}

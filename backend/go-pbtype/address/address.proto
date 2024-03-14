@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package address;
+
+option go_package = "github.com/nekizz/final-project/backend/go-pbtype/address";
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+
+
+// Enable custom Marshal method.
+option (gogoproto.marshaler_all) = true;
+// Enable custom Unmarshal method.
+option (gogoproto.unmarshaler_all) = true;
+// Enable custom Size method (Required by Marshal and Unmarshal).
+option (gogoproto.sizer_all) = true;
+// Enable registration with golang/protobuf for the grpc-gateway.
+option (gogoproto.goproto_registration) = true;
+// Enable generation of XXX_MessageName methods for grpc-go/status.
+option (gogoproto.messagename_all) = true;
+
+message Address {
+  int32 id = 1;
+  string province = 7;
+  string detail_address = 8;
+  string type = 9;
+
+  string created_at = 20;
+  string updated_at = 21;
+}
+
+message OneAddressRequest  {
+  int32 id = 1;
+}
+
+service AddressService {
+  rpc Update(Address) returns (Address) {
+    option (google.api.http) = {
+      put: "/address/{id}"
+      body: "*"
+    };
+  };
+  rpc Create(Address) returns (Address) {
+    option (google.api.http) = {
+      post: "/address"
+      body: "*"
+    };
+  };
+  rpc Get(OneAddressRequest) returns (Address) {
+    option (google.api.http) = {
+      get: "/hotel/{id}"
+    };
+  };
+}

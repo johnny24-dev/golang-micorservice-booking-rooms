@@ -1,0 +1,224 @@
+version: '3.5'
+
+services:
+
+  # Infrastructure services
+  nginx:
+    image: nginx:latest
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - '80:80'
+      - '81:81'
+      - '82:82'
+      - '88:88'
+      - '89:89'
+      - '90:90'
+    hostname: nginx
+    container_name: nginx
+    networks:
+      - go
+
+  go-hotel-rest:
+    image: localhost:5000/go-hotel-service:latest
+    restart: always
+    command: go-hotel-service serve rest
+    environment:
+      - ADDRESS=go-hotel-rest:1406
+      - BACKEND=go-hotel-grpc:1407
+    ports:
+      - '1406:9090'
+    hostname: go-hotel-rest
+    container_name: go-hotel-rest
+    networks:
+      - go
+
+  go-hotel-grpc:
+    image: localhost:5000/go-hotel-service:latest
+    restart: always
+    command: go-hotel-service serve grpc
+    environment:
+      - BACKEND=go-hotel-grpc:1407
+      - USER_BACKEND=go-user-grpc:1409
+      - MYSQLDSN=dbhuan:0866444202@tcp(103.173.254.82:3306)/doandb?charset=utf8mb4&parseTime=True&loc=Local
+    ports:
+      - '1407:9090'
+    hostname: go-hotel-grpc
+    container_name: go-hotel-grpc
+    networks:
+      - go
+
+  go-user-rest:
+    image: localhost:5000/go-user-service:latest
+    restart: always
+    command: go-user-service serve rest
+    environment:
+      - ADDRESS=go-user-rest:1408
+      - BACKEND=go-user-grpc:1409
+    ports:
+      - '1408:9090'
+    hostname: go-user-rest
+    container_name: go-user-rest
+    networks:
+      - go
+
+  go-user-grpc:
+    image: localhost:5000/go-user-service:latest
+    restart: always
+    command: go-user-service serve grpc
+    environment:
+      - BACKEND=go-user-grpc:1409
+      - HOTEL_BACKEND=go-hotel-grpc:1407
+      - AUTHENTICATION_BACKEND=go-authentication-grpc:1427
+      - MYSQLDSN=dbhuan:0866444202@tcp(103.173.254.82:3306)/doandb?charset=utf8mb4&parseTime=True&loc=Local
+    ports:
+      - '1409:9090'
+    hostname: go-user-grpc
+    container_name: go-user-grpc
+    networks:
+     - go
+
+  go-room-rest:
+    image: localhost:5000/go-room-service:latest
+    restart: always
+    command: go-room-service serve rest
+    environment:
+      - ADDRESS=go-room-rest:1410
+      - BACKEND=go-room-grpc:1411
+    ports:
+      - '1410:9090'
+    hostname: go-room-rest
+    container_name: go-room-rest
+    networks:
+      - go
+
+  go-room-grpc:
+    image: localhost:5000/go-room-service:latest
+    restart: always
+    command: go-room-service serve grpc
+    environment:
+      - BACKEND=go-room-grpc:1411
+      - MYSQLDSN=dbhuan:0866444202@tcp(103.173.254.82:3306)/doandb?charset=utf8mb4&parseTime=True&loc=Local
+    ports:
+      - '1411:9090'
+    hostname: go-room-grpc
+    container_name: go-room-grpc
+    networks:
+      - go
+
+  go-booking-rest:
+    image: localhost:5000/go-booking-service:latest
+    restart: always
+    command: go-booking-service serve rest
+    environment:
+      - ADDRESS=go-booking-rest:1424
+      - BACKEND=go-booking-grpc:1425
+    ports:
+      - '1424:9090'
+    hostname: go-booking-rest
+    container_name: go-booking-rest
+    networks:
+      - go
+
+  go-booking-grpc:
+    image: localhost:5000/go-booking-service:latest
+    restart: always
+    command: go-booking-service serve grpc
+    environment:
+      - BACKEND=go-booking-grpc:1425
+      - MYSQLDSN=dbhuan:0866444202@tcp(103.173.254.82:3306)/doandb?charset=utf8mb4&parseTime=True&loc=Local
+      - ROOM_BACKEND=go-room-grpc:1411
+      - HOTEL_BACKEND=go-hotel-grpc:1407
+    ports:
+      - '1425:9090'
+    hostname: go-booking-grpc
+    container_name: go-booking-grpc
+    networks:
+      - go
+
+#  go-payment-rest:
+#    image: localhost:5000/go-payment-service:latest
+#    restart: always
+#    command: go-payment-service serve rest
+#    environment:
+#      - ADDRESS=go-payment-rest:1422
+#      - BACKEND=go-payment-grpc:1423
+#    ports:
+#      - '1422:9090'
+#    hostname: go-payment-rest
+#    container_name: go-payment-rest
+#    networks:
+#      - go
+
+#  go-payment-grpc:
+#    image: localhost:5000/go-payment-service:latest
+#    restart: always
+#    command: go-payment-service serve grpc
+#    environment:
+#      - BACKEND=go-payment-grpc:1423
+#      - MYSQLDSN=dbhuan:0866444202@tcp(103.173.254.82:3306)/doandb?charset=utf8mb4&parseTime=True&loc=Local
+#    ports:
+#      - '1423:9090'
+#    hostname: go-payment-grpc
+#    container_name: go-payment-grpc
+#    networks:
+#      - go
+
+#  go-orchestrator-grpc:
+#    image: localhost:5000/go-orchestrator-service:latest
+#    restart: always
+#    command: go-orchestrator-service serve grpc
+#    environment:
+#      - BACKEND=go-orchestrator-grpc:1481
+#      - MYSQLDSN=dbhuan:0866444202@tcp(103.173.254.82:3306)/doandb?charset=utf8mb4&parseTime=True&loc=Local
+#    ports:
+#      - '1481:9090'
+#    hostname: go-orchestrator-grpc
+#    container_name: go-orchestrator-grpc
+#    networks:
+#      - go
+
+  go-authentication-rest:
+    image: localhost:5000/go-authentication-service:latest
+    restart: always
+    command: go-authentication-service serve rest
+    environment:
+      - ADDRESS=go-authentication-rest:1426
+      - BACKEND=go-authentication-grpc:1427
+    ports:
+      - '1426:9090'
+    hostname: go-authentication-rest
+    container_name: go-authentication-rest
+    networks:
+      - go
+
+  go-authentication-grpc:
+    image: localhost:5000/go-authentication-service:latest
+    restart: always
+    command: go-authentication-service serve grpc
+    environment:
+      - BACKEND=go-authentication-grpc:1427
+      - MYSQLDSN=dbhuan:0866444202@tcp(103.173.254.82:3306)/doandb?charset=utf8mb4&parseTime=True&loc=Local
+    ports:
+      - '1427:9090'
+    hostname: go-authentication-grpc
+    volumes:
+      - ./config.env:/app/config.env
+    container_name: go-authentication-grpc
+    networks:
+      - go
+
+  node-dashboard-service:
+    image: localhost:5000/node-dashboard-service:latest
+    restart: always
+    command: 'npm start'
+    ports:
+      - '1429:1429'
+    hostname: node-dashboard-service
+    container_name: node-dashboard-service
+    networks:
+      - go
+
+networks:
+  go:

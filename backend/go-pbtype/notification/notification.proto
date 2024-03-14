@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package notification;
+
+option go_package = "github.com/nekizz/final-project/backend/go-pbtype/notification";
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+
+message Notification {
+  string status = 1;
+  string message = 2;
+  int32 code = 3;
+}

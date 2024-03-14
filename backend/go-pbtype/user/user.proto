@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "github.com/nekizz/final-project/backend/go-pbtype/user";
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "github.com/nekizz/final-project/backend/go-pbtype/address/address.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+
+// Enable custom Marshal method.
+option (gogoproto.marshaler_all) = true;
+// Enable custom Unmarshal method.
+option (gogoproto.unmarshaler_all) = true;
+// Enable custom Size method (Required by Marshal and Unmarshal).
+option (gogoproto.sizer_all) = true;
+// Enable registration with golang/protobuf for the grpc-gateway.
+option (gogoproto.goproto_registration) = true;
+// Enable generation of XXX_MessageName methods for grpc-go/status.
+option (gogoproto.messagename_all) = true;
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    version: "0.0.1";
+  };
+  external_docs: {
+    url: "github.com/nekizz/final-project/backend/go-pbtype/user";
+    description: "User API";
+  }
+  schemes: HTTPS;
+};
+
+message User {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+  string phone = 5;
+  string note = 6;
+  string avatar = 10;
+  string gender = 11;
+
+  int32 address_id = 12;
+  int32 account_id = 13;
+
+  address.Address address = 16;
+
+  string created_at = 20;
+  string updated_at = 21;
+}
+
+message OneUserRequest {
+  int32 id = 1;
+}
+
+message ListUserRequest {
+  uint32 page = 3;
+  uint32 limit = 4;
+  string created_at_min = 5;
+  string created_at_max = 6;
+  string search_field = 7;
+  string search_value = 8;
+}
+
+message ListUserResponse {
+  repeated User items = 1;
+  uint32 max_page = 2;
+  uint32 total_count = 3;
+  uint32 page = 4;
+  uint32 limit = 5;
+  string search_field = 6;
+  string search_value = 7;
+}
+
+service UserService {
+  rpc Update(User) returns (User) {
+    option (google.api.http) = {
+      put: "/user/{id}"
+      body: "*"
+    };
+  };
+
+  rpc Delete(OneUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/user/{id}"
+    };
+  };
+}

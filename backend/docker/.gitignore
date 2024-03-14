@@ -1,0 +1,6 @@
+.idea
+.env
+.vscode/*
+mysql/data/*
+config.env
+

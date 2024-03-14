@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package comment;
+
+option go_package = "github.com/nekizz/final-project/backend/go-pbtype/comment";
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "github.com/nekizz/final-project/backend/go-pbtype/classify/classify.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+// Enable custom Marshal method.
+option (gogoproto.marshaler_all) = true;
+// Enable custom Unmarshal method.
+option (gogoproto.unmarshaler_all) = true;
+// Enable custom Size method (Required by Marshal and Unmarshal).
+option (gogoproto.sizer_all) = true;
+// Enable registration with golang/protobuf for the grpc-gateway.
+option (gogoproto.goproto_registration) = true;
+// Enable generation of XXX_MessageName methods for grpc-go/status.
+option (gogoproto.messagename_all) = true;
+
+message Comment {
+  int32 id = 1;
+  string text = 2;
+  string type = 3;
+  float rate = 4;
+  int32 customer_id = 5;
+  string customer_name = 6;
+  int32 hotel_id = 7;
+  string comment_date = 8;
+  classify.Classify classify = 9;
+  string created_at = 20;
+  string updated_at = 21;
+}
+
+message ListCommentRequest {
+  uint32 hotel_id = 2;
+  uint32 page = 3;
+  uint32 limit = 4;
+  uint32 sort_asc = 5;
+}
+
+message ListCommentResponse {
+  repeated Comment items = 1;
+  uint32 max_page = 2;
+  uint32 total_count = 3;
+  uint32 page = 4;
+  uint32 limit = 5;
+}
+
+message OneCommentRequest {
+  int32 id = 1;
+}
+
+service CommentService {
+  rpc CreateComment(Comment) returns (Comment) {
+    option (google.api.http) = {
+      post: "/hotel/add_comment"
+      body: "*"
+    };
+  };
+  rpc DeleteComment(OneCommentRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/hotel/delete_comment/{id}"
+    };
+  };
+  rpc ListCommentOfHotel(ListCommentRequest) returns (ListCommentResponse) {
+    option (google.api.http) = {
+      get: "/hotel/{hotel_id}/comments"
+    };
+  };
+}

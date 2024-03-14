@@ -1,0 +1,162 @@
+syntax = "proto3";
+
+package hotel;
+
+option go_package = "github.com/nekizz/final-project/backend/go-pbtype/hotel";
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "github.com/nekizz/final-project/backend/go-pbtype/address/address.proto";
+import "github.com/nekizz/final-project/backend/go-pbtype/image/image.proto";
+import "github.com/nekizz/final-project/backend/go-pbtype/comment/comment.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+// Enable custom Marshal method.
+option (gogoproto.marshaler_all) = true;
+// Enable custom Unmarshal method.
+option (gogoproto.unmarshaler_all) = true;
+// Enable custom Size method (Required by Marshal and Unmarshal).
+option (gogoproto.sizer_all) = true;
+// Enable registration with golang/protobuf for the grpc-gateway.
+option (gogoproto.goproto_registration) = true;
+// Enable generation of XXX_MessageName methods for grpc-go/status.
+option (gogoproto.messagename_all) = true;
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    version: "0.0.1";
+  };
+  external_docs: {
+    url: "github.com/nekizz/final-project/backend/go-pbtype/hotel";
+    description: "Hotel API";
+  }
+  schemes: HTTPS;
+};
+
+message Hotel {
+  int32 id = 1;
+  string name = 2;
+  int32 star_level = 3;
+  bool is_available = 4;
+  float rate = 5;
+  string description = 7;
+  string created_at = 20;
+  string updated_at = 21;
+
+  int32 address_id = 12;
+  int32 customer_id = 13;
+
+  address.Address address = 10;
+  repeated image.Image list_image = 11;
+  repeated comment.Comment list_comment = 14;
+}
+
+message OneHotelRequest {
+  string id = 1;
+}
+
+message ListHotelRequest {
+  uint32 page = 3;
+  uint32 limit = 4;
+  string created_at_min = 5;
+  string created_at_max = 6;
+  string search_field = 7;
+  string search_value = 8;
+  uint32 customer_id = 9;
+
+  string name = 10;
+  string location = 11;
+  string room_type = 12;
+  string check_in = 13;
+  string checkout = 14;
+}
+
+message ListHotelCustomerRequest {
+  uint32 page = 3;
+  uint32 limit = 4;
+  string created_at_min = 5;
+  string created_at_max = 6;
+
+  string name = 10;
+  string location = 11;
+  string room_type = 12;
+  string check_in = 13;
+  string checkout = 14;
+  string star_level = 15;
+}
+
+message ListHotelByIDRequest {
+  uint32 page = 3;
+  uint32 limit = 4;
+  string created_at_min = 5;
+  string created_at_max = 6;
+  string search_field = 7;
+  string search_value = 8;
+  repeated int32 list_hotel_id = 9;
+}
+
+message ListHotelResponse {
+  repeated Hotel items = 1;
+  uint32 max_page = 2;
+  uint32 total_count = 3;
+  uint32 page = 4;
+  uint32 limit = 5;
+  string search_field = 6;
+  string search_value = 7;
+}
+
+message ListAllHotelWithFilter {
+  uint32 page = 3;
+  uint32 limit = 4;
+  string created_at_min = 5;
+  string created_at_max = 6;
+  string name = 7;
+  string location = 8;
+  string check_in = 9;
+  string check_out = 10;
+  string room_type = 11;
+}
+
+service HotelService {
+  rpc Create(Hotel) returns (Hotel) {
+    option (google.api.http) = {
+      post: "/customer/{customer_id}/hotel"
+      body: "*"
+    };
+  };
+  rpc Update(Hotel) returns (Hotel) {
+    option (google.api.http) = {
+      put: "/hotel/{id}"
+      body: "*"
+    };
+  };
+  rpc Get(OneHotelRequest) returns (Hotel) {
+    option (google.api.http) = {
+      get: "/hotel/{id}"
+    };
+  };
+  rpc Delete(OneHotelRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/hotel/{id}"
+    };
+  };
+
+
+  rpc ListHotelByHostID(ListHotelRequest) returns (ListHotelResponse) {
+    option (google.api.http) = {
+      get: "/customer/{customer_id}/hotels"
+    };
+  };
+  rpc ListAll(ListHotelCustomerRequest) returns (ListHotelResponse) {
+    option (google.api.http) = {
+      get: "/hotels"
+    };
+  };
+  rpc GetByListID(ListHotelByIDRequest) returns (ListHotelResponse) {
+    option (google.api.http) = {
+      put: "/hotel/list_hotel_by_list_id"
+      body: "*"
+    };
+  };
+}
